@@ -1656,8 +1656,9 @@ server at the domain such that when a handshake is initiated with the Server
 Name Indication extension set to "\<Z[0:32]\>.\<Z[32:64]\>.acme.invalid", the
 generated test certificate is presented.
 
-The response to the DVSNI challenge simply acknowledges that the client is ready
-to fulfill this challenge.
+The response to the DVSNI challenge acknowledges that the client is ready
+to fulfill this challenge, and tells the server what public key to expect in
+the certificate.
 
 type (required, string):
 : The string "dvsni"
@@ -1665,9 +1666,14 @@ type (required, string):
 token (required, string):
 : The "token" value from the authorized key object in the challenge.
 
+certificateKey (required, JWK):
+: The public key in the certificate to be used in the validation transaction,
+encoded as a JWK.
+
 ~~~~~~~~~~
 {
-  "token": "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+  "token": "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA",
+  "certificateKey: /* JWK */
 }
 ~~~~~~~~~~
 
@@ -1683,6 +1689,8 @@ of the domain by verifying that the TLS server was configured appropriately.
    field (where the comparison is case-insensitive).
 4. Verify that the certificate contains a subjectAltName extension with the
    dNSName of "\<Z[0:32]\>.\<Z[32:64]\>.acme.invalid".
+5. Verify that the subject public key in the certificate is the same as the
+   key expressed in the "certificateKey" field of the response.
 
 It is RECOMMENDED that the ACME server validation TLS connections from multiple
 vantage points to reduce the risk of DNS hijacking attacks.
